@@ -560,11 +560,13 @@ class Message extends Base {
     async getInfo() {
         const info = await this.client.pupPage.evaluate(async (msgId) => {
             const msg = window.Store.Msg.get(msgId);
-            if (!msg || !msg.fromMe) return null;
+            if (!msg || !msg.id.fromMe) return null;
 
-            return await new Promise(resolve => setTimeout(async () => {
-                resolve(await window.Store.getMsgInfo(msg.id));
-            }, (Date.now() - msg.t < 1100) && Math.floor(Math.random() * (1200 - 1100 + 1)) + 1100 || 0));
+            return new Promise((resolve) => {
+                setTimeout(async () => {
+                    resolve(await window.Store.getMsgInfo(msg.id));
+                }, (Date.now() - msg.t * 1000 < 1250) && Math.floor(Math.random() * (1200 - 1100 + 1)) + 1100 || 0);
+            });
         }, this.id._serialized);
 
         return info;
