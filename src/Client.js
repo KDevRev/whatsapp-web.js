@@ -30,7 +30,7 @@ const NoAuth = require('./authStrategies/NoAuth');
  * @param {number} options.takeoverOnConflict - If another whatsapp web session is detected (another browser), take over the session in the current browser
  * @param {number} options.takeoverTimeoutMs - How much time to wait before taking over the session
  * @param {string} options.userAgent - User agent to use in puppeteer
- * @param {string} options.ffmpegPath - Ffmpeg path to use when formating videos to webp while sending stickers 
+ * @param {string} options.ffmpegPath - Ffmpeg path to use when formatting videos to webp while sending stickers 
  * @param {boolean} options.bypassCSP - Sets bypassing of page's Content-Security-Policy.
  * @param {object} options.proxyAuthentication - Proxy Authentication object.
  * 
@@ -715,6 +715,7 @@ class Client extends EventEmitter {
                 await this.authStrategy.disconnect();
                 this.emit(Events.DISCONNECTED, 'NAVIGATION');
                 await this.destroy();
+                await this.authStrategy.logout();
             }
         });
     }
@@ -763,15 +764,11 @@ class Client extends EventEmitter {
         await this.pupPage.evaluate(() => {
             return window.Store.AppState.logout();
         });
-        await this.pupBrowser.close();
-        
-        let maxDelay = 0;
-        while (this.pupBrowser.isConnected() && (maxDelay < 10)) { // waits a maximum of 1 second before calling the AuthStrategy
-            await new Promise(resolve => setTimeout(resolve, 100));
-            maxDelay++; 
-        }
-        
-        await this.authStrategy.logout();
+
+        this.pupBrowser.on('disconnected', async () => {
+            await this.pupBrowser.close();
+            await this.authStrategy.logout();
+        });
     }
 
     /**
