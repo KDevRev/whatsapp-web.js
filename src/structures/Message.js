@@ -187,14 +187,32 @@ class Message extends Base {
         } : undefined;
 
         /**
-         * Indicates the mentions in the message body.
-         * @type {Array<string>}
+         * @typedef {Object} Mention
+         * @property {string} server
+         * @property {string} user
+         * @property {string} _serialized
          */
-        this.mentionedIds = [];
 
-        if (data.mentionedJidList) {
-            this.mentionedIds = data.mentionedJidList;
-        }
+        /**
+         * Indicates the mentions in the message body.
+         * @type {Mention[]}
+         */
+        this.mentionedIds = data.mentionedJidList || [];
+
+        /**
+         * @typedef {Object} GroupMention
+         * @property {string} groupSubject The name  of the group
+         * @property {Object} groupJid The group ID
+         * @property {string} groupJid.server
+         * @property {string} groupJid.user
+         * @property {string} groupJid._serialized
+         */
+
+        /**
+         * Indicates whether there are group mentions in the message body
+         * @type {GroupMention[]}
+         */
+        this.groupMentions = data.groupMentions || [];
 
         /**
          * Indicates whether there are group mentions in the message body
@@ -538,6 +556,27 @@ class Message extends Base {
                 let chat = await window.Store.Chat.find(msg.id.remote);
                 return window.Store.Cmd.sendUnstarMsgs(chat, [msg], false);
             }
+        }, this.id._serialized);
+    }
+
+    /**
+     * Pins the message (group admins can pin messages of all group members)
+     * @param {number} duration The duration in seconds the message will be pinned in a chat
+     * @returns {Promise<boolean>} Returns true if the operation completed successfully, false otherwise
+     */
+    async pin(duration) {
+        return await this.client.pupPage.evaluate(async (msgId, duration) => {
+            return await window.WWebJS.pinUnpinMsgAction(msgId, 1, duration);
+        }, this.id._serialized, duration);
+    }
+
+    /**
+     * Unpins the message (group admins can unpin messages of all group members)
+     * @returns {Promise<boolean>} Returns true if the operation completed successfully, false otherwise
+     */
+    async unpin() {
+        return await this.client.pupPage.evaluate(async (msgId) => {
+            return await window.WWebJS.pinUnpinMsgAction(msgId, 2);
         }, this.id._serialized);
     }
 
