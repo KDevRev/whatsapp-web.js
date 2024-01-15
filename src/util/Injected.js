@@ -182,11 +182,11 @@ exports.LoadUtils = () => {
         }
         let quotedMsgOptions = {};
         if (options.quotedMessageId) {
-            let quotedMessage = await window.Store.Msg.get(options.quotedMessageId);
+            let quotedMessage = window.Store.Msg.get(options.quotedMessageId);
 
             // TODO remove .canReply() once all clients are updated to >= v2.2241.6
-            const canReply = await window.Store.ReplyUtils ? 
-                await window.Store.ReplyUtils.canReplyMsg(quotedMessage.unsafe()) : 
+            const canReply = window.Store.ReplyUtils ? 
+                window.Store.ReplyUtils.canReplyMsg(quotedMessage.unsafe()) : 
                 quotedMessage.canReply();
 
             if (canReply) {
@@ -375,7 +375,7 @@ exports.LoadUtils = () => {
         };
 
         await window.Store.SendMessage.addAndSendMsgToChat(chat, message);
-        return await window.Store.Msg.get(newMsgId._serialized);
+        return window.Store.Msg.get(newMsgId._serialized);
     };
 	
     window.WWebJS.editMessage = async (msg, content, options = {}) => {

@@ -215,17 +215,6 @@ class Message extends Base {
         this.groupMentions = data.groupMentions || [];
 
         /**
-         * Indicates whether there are group mentions in the message body
-         * @type {Object[]}
-         * @property {string} groupSubject The name  of the group
-         * @property {object} groupJid The group ID
-         * @property {string} groupJid.server
-         * @property {string} groupJid.user
-         * @property {string} groupJid._serialized
-         */
-        this.groupMentions = data.groupMentions || [];
-
-        /**
          * Order ID for message type ORDER
          * @type {string}
          */
@@ -415,7 +404,7 @@ class Message extends Base {
             quotedMessageId: this.id._serialized
         };
 
-        return await this.client.sendMessage(chatId, content, options);
+        return this.client.sendMessage(chatId, content, options);
     }
 
     /**
