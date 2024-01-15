@@ -259,7 +259,7 @@ class Client extends EventEmitter {
                     });
 
                     return obs;
-                };
+                }
 
                 var qr_container_obs = observerQrChanged();
                 var qr_container_selector = document.querySelector(selectors.QR_CONTAINER);
